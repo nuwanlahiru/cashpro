@@ -1,0 +1,211 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-mono: "SF Mono", "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-slate-50: var(--th-slate-50);
+  --color-slate-100: var(--th-slate-100);
+  --color-slate-200: var(--th-slate-200);
+  --color-slate-300: var(--th-slate-300);
+  --color-slate-400: var(--th-slate-400);
+  --color-slate-500: var(--th-slate-500);
+  --color-slate-600: var(--th-slate-600);
+  --color-slate-700: var(--th-slate-700);
+  --color-slate-800: var(--th-slate-800);
+  --color-slate-900: var(--th-slate-900);
+
+  --color-indigo-50: var(--th-indigo-50);
+  --color-indigo-100: var(--th-indigo-100);
+  --color-indigo-200: var(--th-indigo-200);
+  --color-indigo-300: var(--th-indigo-300);
+  --color-indigo-400: var(--th-indigo-400);
+  --color-indigo-500: var(--th-indigo-500);
+  --color-indigo-600: var(--th-indigo-600);
+  --color-indigo-700: var(--th-indigo-700);
+
+  --color-red-500: #ef4444;
+}
+
+:root {
+  --th-header-bg: rgba(255, 255, 255, 0.7);
+  --th-white: #ffffff;
+  --th-black: #000000;
+  
+  --th-slate-50: #f8fafc;
+  --th-slate-100: #f1f5f9;
+  --th-slate-200: #e2e8f0;
+  --th-slate-300: #cbd5e1;
+  --th-slate-400: #94a3b8;
+  --th-slate-500: #64748b;
+  --th-slate-600: #475569;
+  --th-slate-700: #334155;
+  --th-slate-800: #1e293b;
+  --th-slate-900: #0f172a;
+
+  --th-indigo-50: #eef2ff;
+  --th-indigo-100: #e0e7ff;
+  --th-indigo-200: #c7d2fe;
+  --th-indigo-300: #a5b4fc;
+  --th-indigo-400: #818cf8;
+  --th-indigo-500: #6366f1;
+  --th-indigo-600: #4f46e5;
+  --th-indigo-700: #4338ca;
+
+  --th-inverted-bg: #0f172a;
+  --th-inverted-text: #ffffff;
+  --th-primary-btn: #4f46e5;
+  --bg-app: #f2f2f7;
+}
+
+[data-theme="dark"] {
+  --th-header-bg: rgba(28, 28, 30, 0.7);
+  --th-white: #1c1c1e;
+  --th-black: #ffffff;
+  
+  --th-slate-50: #2c2c2e;
+  --th-slate-100: #3a3a3c;
+  --th-slate-200: #48484a;
+  --th-slate-300: #636366;
+  --th-slate-400: #8e8e93;
+  --th-slate-500: #aeaeb2;
+  --th-slate-600: #c7c7cc;
+  --th-slate-700: #d1d1d6;
+  --th-slate-800: #e5e5ea;
+  --th-slate-900: #ffffff;
+
+  --th-indigo-50: #1c1c1e;
+  --th-indigo-100: #2c2c2e;
+  --th-indigo-200: #3a3a3c;
+  --th-indigo-300: #007aff;
+  --th-indigo-400: #0a84ff;
+  --th-indigo-500: #0a84ff;
+  --th-indigo-600: #0a84ff;
+  --th-indigo-700: #0a84ff;
+  
+  --th-inverted-bg: #ffffff;
+  --th-inverted-text: #1c1c1e;
+  --th-primary-btn: #0a84ff;
+  --bg-app: #000000;
+}
+
+[data-theme="colorful"] {
+  --th-header-bg: rgba(0, 0, 0, 0.3);
+  --th-white: rgba(0, 0, 0, 0.35);
+  --th-black: #ffffff;
+  
+  --th-slate-50: rgba(255, 255, 255, 0.05);
+  --th-slate-100: rgba(255, 255, 255, 0.1);
+  --th-slate-200: rgba(255, 255, 255, 0.15);
+  --th-slate-300: rgba(255, 255, 255, 0.3);
+  --th-slate-400: rgba(255, 255, 255, 0.5);
+  --th-slate-500: rgba(255, 255, 255, 0.7);
+  --th-slate-600: rgba(255, 255, 255, 0.85);
+  --th-slate-700: rgba(255, 255, 255, 0.95);
+  --th-slate-800: #ffffff;
+  --th-slate-900: #ffffff;
+
+  --th-indigo-50: rgba(99, 102, 241, 0.15);
+  --th-indigo-100: rgba(99, 102, 241, 0.25);
+  --th-indigo-200: rgba(99, 102, 241, 0.35);
+  --th-indigo-300: rgba(99, 102, 241, 0.45);
+  --th-indigo-400: #c7d2fe;
+  --th-indigo-500: #a5b4fc;
+  --th-indigo-600: #818cf8;
+  --th-indigo-700: #6366f1;
+  
+  --th-inverted-bg: rgba(255, 255, 255, 0.9);
+  --th-inverted-text: #000000;
+  --th-primary-btn: #6366f1;
+  --bg-app: transparent;
+}
+
+[data-theme="colorful"] .bg-\[var\(--th-white\)\] {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background-color: var(--th-white) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 40px -10px rgba(0,0,0,0.3) !important;
+}
+
+[data-theme="colorful"] .bg-\[var\(--bg-app\)\]:not(.min-h-screen) {
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  background-color: rgba(0, 0, 0, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="colorful"] header.bg-\[var\(--th-header-bg\)\] {
+  background-color: var(--th-header-bg) !important;
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.colorful-bg {
+  background: 
+    linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.5)),
+    url("https://images.unsplash.com/photo-1519046904884-53103b34b206?q=80&w=2564&auto=format&fit=crop");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  animation: bgAnimate 20s ease-in-out infinite alternate;
+}
+
+[data-theme="colorful"] .text-slate-900,
+[data-theme="colorful"] .text-slate-500,
+[data-theme="colorful"] .text-slate-800,
+[data-theme="colorful"] .text-indigo-500 {
+  text-shadow: 0 2px 6px rgba(0,0,0,0.6), 0 0 16px rgba(0,0,0,0.3);
+}
+
+[data-theme="colorful"] .bg-\[var\(--th-white\)\] .text-slate-900,
+[data-theme="colorful"] .bg-\[var\(--th-white\)\] .text-slate-500,
+[data-theme="colorful"] .bg-\[var\(--th-white\)\] .text-slate-800 {
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+@keyframes bgAnimate {
+  0% { transform: scale(1); filter: hue-rotate(0deg) brightness(1); }
+  50% { filter: hue-rotate(15deg) brightness(1.1); }
+  100% { transform: scale(1.08); filter: hue-rotate(30deg) brightness(1); }
+}
+
+@layer base {
+  body {
+    @apply font-sans antialiased text-slate-900;
+    -webkit-tap-highlight-color: transparent;
+    background-color: var(--bg-app);
+    color: var(--th-slate-900);
+  }
+}
+
+/* Safe area padding for mobile (notch, bottom bar) */
+.safe-pb {
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+.safe-pt {
+  padding-top: env(safe-area-inset-top, 20px);
+}
+
+@media print {
+  body {
+    background-color: white !important;
+    color: black !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .print-break-inside-avoid {
+    break-inside: avoid;
+  }
+  @page {
+    margin: 1.5cm;
+  }
+}
