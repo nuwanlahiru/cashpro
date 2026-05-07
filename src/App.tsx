@@ -6,8 +6,9 @@ import TaskDetail from './components/TaskDetail';
 import ReportView from './components/ReportView';
 import TrashBinView from './components/TrashBinView';
 import SettingsView from './components/SettingsView';
-import { Sun, Moon, Palette, Settings } from 'lucide-react';
+import { Sun, Moon, Palette, Settings, Cloud, CloudOff, RefreshCw, DownloadCloud } from 'lucide-react';
 import { useSettings } from './hooks/useSettings';
+import { useSync } from './hooks/useSync';
 
 type Theme = 'light' | 'dark' | 'colorful';
 
@@ -42,6 +43,9 @@ export default function App() {
       return [];
     }
   });
+
+  const { syncStatus, isOnline, pushData, pullData } = useSync(tasks, setTasks);
+  const [showSyncMenu, setShowSyncMenu] = useState(false);
   
   const [view, setView] = useState<ViewState>('dashboard');
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
@@ -98,10 +102,48 @@ export default function App() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h1 className="text-lg font-bold tracking-tight text-[var(--th-slate-900)]">PettyCash Pro</h1>
+          <h1 className="text-lg font-bold tracking-tight text-[var(--th-slate-900)]">Petty Cash 💸</h1>
         </div>
         
         <div className="flex items-center gap-2">
+          
+          <div className="relative flex items-center">
+            <button 
+              onClick={() => setShowSyncMenu(!showSyncMenu)}
+              className={`flex items-center justify-center p-2 rounded-full transition-colors ${!isOnline ? 'text-red-500 bg-red-50 hover:bg-red-100' : syncStatus === 'error' ? 'text-orange-500 bg-orange-50 hover:bg-orange-100' : syncStatus === 'pending' ? 'text-amber-500 bg-amber-50 hover:bg-amber-100' : syncStatus === 'synced' ? 'text-emerald-500 bg-emerald-50 hover:bg-emerald-100' : 'text-indigo-500 bg-indigo-50 hover:bg-indigo-100'}`}
+              title="Sync Status"
+              aria-label="Sync Status"
+            >
+              {!isOnline ? <CloudOff size={18} /> : syncStatus === 'syncing' ? <RefreshCw size={18} className="animate-spin" /> : <Cloud size={18} />}
+            </button>
+
+            {showSyncMenu && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowSyncMenu(false)}></div>
+                <div className="absolute top-12 right-0 mt-2 w-48 bg-[var(--th-white)] rounded-[16px] shadow-sm border border-[var(--th-slate-200)] z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                  <div className="px-4 py-3 border-b border-[var(--th-slate-200)]/50">
+                    <p className="text-sm font-semibold text-slate-800">Sync Status</p>
+                    <p className="text-xs text-slate-500 mt-1">{!isOnline ? 'Offline' : syncStatus.charAt(0).toUpperCase() + syncStatus.slice(1)}</p>
+                  </div>
+                  <button 
+                    onClick={() => { pushData(); setShowSyncMenu(false); }}
+                    disabled={!isOnline || syncStatus === 'syncing'}
+                    className="w-full flex items-center gap-2 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <Cloud size={16} className="text-emerald-500" /> Push Data
+                  </button>
+                  <button 
+                    onClick={() => { pullData(); setShowSyncMenu(false); }}
+                    disabled={!isOnline || syncStatus === 'syncing'}
+                    className="w-full flex items-center gap-2 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border-t border-[var(--th-slate-200)]/50"
+                  >
+                    <DownloadCloud size={16} className="text-indigo-500" /> Pull Data
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+
           <div className="flex bg-[var(--bg-app)] rounded-full p-1 border border-[var(--th-slate-200)]/50">
             <button 
               onClick={() => setTheme('light')}
@@ -214,6 +256,9 @@ export default function App() {
           />
         )}
       </main>
+      <footer className="text-center text-xs font-medium text-[var(--th-slate-400)] pb-6 safe-pb">
+        © {new Date().getFullYear()} by <a href="https://scrollloop.com" target="_blank" rel="noopener noreferrer" className="text-[var(--th-indigo-500)] hover:underline">scrollloop.com</a>
+      </footer>
     </div>
     </>
   );

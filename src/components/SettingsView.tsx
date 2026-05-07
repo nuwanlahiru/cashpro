@@ -13,6 +13,7 @@ export default function SettingsView({ onBack, tasks, setTasks }: SettingsViewPr
   const { settings, setSettings } = useSettings();
   const [currency, setCurrency] = useState(settings.currencyCode || 'LKR');
   const [adminPwd, setAdminPwd] = useState(settings.adminPassword || '2745');
+  const [syncUrl, setSyncUrl] = useState(settings.syncUrl || '');
   const [showSavedMsg, setShowSavedMsg] = useState(false);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
@@ -21,7 +22,8 @@ export default function SettingsView({ onBack, tasks, setTasks }: SettingsViewPr
     setSettings({
       ...settings,
       currencyCode: currency,
-      adminPassword: adminPwd
+      adminPassword: adminPwd,
+      syncUrl: syncUrl
     });
     
     setShowSavedMsg(true);
@@ -81,6 +83,19 @@ export default function SettingsView({ onBack, tasks, setTasks }: SettingsViewPr
                 />
                 <p className="text-xs text-slate-400 mt-2 ml-1">Used to unlock completed tasks in reports.</p>
               </div>
+            </div>
+            
+            <div className="mt-4">
+              <label htmlFor="syncUrl" className="block text-sm font-semibold text-slate-500 mb-1.5 ml-1">Google Apps Script Web App URL (Sync)</label>
+              <input 
+                id="syncUrl" 
+                type="url" 
+                className="w-full rounded-[16px] bg-[var(--bg-app)] border border-transparent px-4 py-3.5 focus:border-indigo-500 focus:bg-[var(--th-white)] outline-none transition-all font-semibold" 
+                value={syncUrl} 
+                onChange={(e) => setSyncUrl(e.target.value)} 
+                placeholder="https://script.google.com/macros/s/.../exec" 
+              />
+              <p className="text-xs text-slate-400 mt-2 ml-1">Paste the Web App URL from your Google Apps Script deployment to enable syncing.</p>
             </div>
           </div>
 

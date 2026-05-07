@@ -183,27 +183,52 @@ export default function ReportView({ task, onBack, onUnlock, onEdit }: ReportVie
                           const { jsPDF } = await import('jspdf');
 
                           // Add a small delay to ensure charts are rendered completely
-                          await new Promise(r => setTimeout(r, 100));
+                          await new Promise(r => setTimeout(r, 150));
+
+                          const originalScrollTop = window.scrollY;
+                          window.scrollTo(0, 0);
 
                           const dataUrl = await toPng(element, { 
                             quality: 0.95, 
                             backgroundColor: '#ffffff',
                             pixelRatio: 2, // For better quality
                             width: 800,
-                            height: element.scrollHeight // capture full height
+                            height: element.scrollHeight, // capture full height
+                            style: {
+                              transform: 'scale(1)',
+                              transformOrigin: 'top left',
+                            }
                           });
                           
-                          const pdfWidth = 210; // A4 width in mm
-                          const pdfHeight = (element.scrollHeight * pdfWidth) / 800; // Calculate proportional height
+                          window.scrollTo(0, originalScrollTop);
                           
-                          // Initialize jsPDF with dynamic height so nothing gets cut off!
+                          const pdfWidth = 210; // A4 width in mm
+                          const pageHeight = 297; // A4 height in mm
+                          // Calculate proportional height of the full image
+                          const pdfHeight = (element.scrollHeight * pdfWidth) / 800;
+                          
+                          // Initialize jsPDF with standard A4
                           const pdf = new jsPDF({
                             orientation: 'portrait',
                             unit: 'mm',
-                            format: [pdfWidth, Math.max(297, pdfHeight)]
+                            format: 'a4'
                           });
                           
-                          pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                          let heightLeft = pdfHeight;
+                          let position = 0;
+                          
+                          // Draw first page
+                          pdf.addImage(dataUrl, 'PNG', 0, position, pdfWidth, pdfHeight);
+                          heightLeft -= pageHeight;
+                          
+                          // Slicing into multiple pages
+                          while (heightLeft > 0) {
+                            position -= pageHeight;
+                            pdf.addPage();
+                            pdf.addImage(dataUrl, 'PNG', 0, position, pdfWidth, pdfHeight);
+                            heightLeft -= pageHeight;
+                          }
+                          
                           pdf.save(`${task.title.replace(/\s+/g, '_')}_Report.pdf`);
                         } catch (err) {
                           console.error('Failed to generate PDF:', err);
