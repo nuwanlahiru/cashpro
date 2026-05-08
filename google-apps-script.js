@@ -21,6 +21,39 @@ function setup() {
   }
 }
 
+function doGet(e) {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sheet = ss.getSheetByName(SHEET_NAME);
+    if (!sheet) {
+      sheet = ss.insertSheet(SHEET_NAME);
+    }
+    
+    // Pull gets the most recent row's data
+    const lastRow = sheet.getLastRow();
+    if (lastRow <= 1) {
+       return ContentService.createTextOutput(JSON.stringify({
+          status: 'success',
+          data: []
+       })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    const dataString = sheet.getRange(lastRow, 1).getValue();
+    const data = JSON.parse(dataString);
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'success',
+      data: data
+    })).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: 'error',
+      message: error.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
 function doPost(e) {
   try {
     const payload = JSON.parse(e.postData.contents);

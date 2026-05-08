@@ -6,7 +6,8 @@ import TaskDetail from './components/TaskDetail';
 import ReportView from './components/ReportView';
 import TrashBinView from './components/TrashBinView';
 import SettingsView from './components/SettingsView';
-import { Sun, Moon, Palette, Settings, Cloud, CloudOff, RefreshCw, DownloadCloud, UploadCloud, Infinity, AlertTriangle } from 'lucide-react';
+import LogsModal from './components/LogsModal';
+import { Sun, Moon, Palette, Settings, Cloud, CloudOff, RefreshCw, DownloadCloud, UploadCloud, Infinity, AlertTriangle, FileText } from 'lucide-react';
 import { useSettings } from './hooks/useSettings';
 import { useSync } from './hooks/useSync';
 import { useModalBack } from './hooks/useModalBack';
@@ -47,8 +48,11 @@ export default function App() {
 
   const { settings } = useSettings();
   const { syncStatus, isOnline, lastSyncTime, pushData, pullData } = useSync(tasks, setTasks);
+
   const [showSyncMenu, setShowSyncMenu] = useState(false);
   useModalBack(showSyncMenu, () => setShowSyncMenu(false), 'syncMenu');
+  
+  const [showLogsModal, setShowLogsModal] = useState(false);
   
   const [view, setViewState] = useState<ViewState>('dashboard');
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
@@ -161,11 +165,7 @@ export default function App() {
                   </div>
                   <button 
                     onClick={() => { 
-                      if (!settings.syncUrl) {
-                        alert("Please configure the Sync URL in Settings first.");
-                      } else {
-                        pushData(); 
-                      }
+                      pushData(); 
                       setShowSyncMenu(false); 
                     }}
                     disabled={!isOnline || syncStatus === 'syncing'}
@@ -175,11 +175,7 @@ export default function App() {
                   </button>
                   <button 
                     onClick={() => { 
-                      if (!settings.syncUrl) {
-                        alert("Please configure the Sync URL in Settings first.");
-                      } else {
-                        pullData(); 
-                      }
+                      pullData(); 
                       setShowSyncMenu(false); 
                     }}
                     disabled={!isOnline || syncStatus === 'syncing' || syncStatus === 'pending'}
@@ -207,12 +203,29 @@ export default function App() {
 
           <div className="flex bg-[var(--bg-app)] rounded-full p-1 border border-[var(--th-slate-200)]/50">
             <button 
+              onClick={() => setShowLogsModal(true)}
+              className={`p-1.5 rounded-full transition-colors ${showLogsModal ? 'bg-[var(--th-white)] text-[var(--th-indigo-600)] shadow-sm' : 'text-[var(--th-slate-400)] hover:text-[var(--th-slate-600)]'}`}
+              title="Logs"
+              aria-label="View Logs"
+            >
+              <FileText size={18} />
+            </button>
+            <button 
               onClick={() => setView('settings')}
-              className={`p-1.5 rounded-full transition-colors ${view === 'settings' ? 'bg-[var(--th-white)] text-[var(--th-indigo-600)] shadow-sm' : 'text-[var(--th-slate-400)] hover:text-[var(--th-slate-600)]'}`}
+              className={`p-1.5 rounded-full transition-colors relative ${view === 'settings' ? 'bg-[var(--th-white)] text-[var(--th-indigo-600)] shadow-sm' : 'text-[var(--th-slate-400)] hover:text-[var(--th-slate-600)]'}`}
               title="Settings"
               aria-label="Open Settings"
             >
               <Settings size={18} />
+              {!isOnline ? (
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 border-2 border-[var(--th-white)] rounded-full"></span>
+              ) : syncStatus === 'error' ? (
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-orange-500 border-2 border-[var(--th-white)] rounded-full"></span>
+              ) : syncStatus === 'pending' ? (
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-amber-500 border-2 border-[var(--th-white)] rounded-full"></span>
+              ) : syncStatus === 'syncing' ? (
+                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-indigo-500 border-2 border-[var(--th-white)] rounded-full animate-pulse"></span>
+              ) : null}
             </button>
           </div>
         </div>
@@ -303,6 +316,8 @@ export default function App() {
         )}
         </div>
       </main>
+      
+      {showLogsModal && <LogsModal onClose={() => setShowLogsModal(false)} />}
       <footer className="shrink-0 text-center text-xs font-medium text-[var(--th-slate-400)] pt-3 pb-6 safe-pb bg-[var(--bg-app)] border-t border-[var(--th-slate-200)]/30">
         © {new Date().getFullYear()} by <a href="https://scrollloop.com" target="_blank" rel="noopener noreferrer" className="text-[var(--th-indigo-500)] hover:underline">scrollloop.com</a>
       </footer>

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 /**
  * A hook that handles the hardware back button (or browser back button) 
@@ -10,13 +10,19 @@ import { useEffect } from 'react';
  * to keep the history clean.
  */
 export function useModalBack(isOpen: boolean, onClose: () => void, modalId: string = 'modal') {
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
   useEffect(() => {
     if (!isOpen) return;
 
     const handlePopState = (e: PopStateEvent) => {
       // The popstate event means the history popped already.
       e.preventDefault();
-      onClose();
+      onCloseRef.current();
     };
 
     // Push a new state specifically for this modal
@@ -33,5 +39,5 @@ export function useModalBack(isOpen: boolean, onClose: () => void, modalId: stri
         window.history.back();
       }
     };
-  }, [isOpen, onClose, modalId]);
+  }, [isOpen, modalId]);
 }

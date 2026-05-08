@@ -18,7 +18,6 @@ export default function SettingsView({ onBack, tasks, setTasks, isOnline, syncSt
   const { settings, setSettings } = useSettings();
   const [currency, setCurrency] = useState(settings.currencyCode || 'LKR');
   const [adminPwd, setAdminPwd] = useState(settings.adminPassword || '2745');
-  const [syncUrl, setSyncUrl] = useState(settings.syncUrl || '');
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   useModalBack(showClearConfirm, () => setShowClearConfirm(false), 'clearConfirm');
@@ -84,47 +83,21 @@ export default function SettingsView({ onBack, tasks, setTasks, isOnline, syncSt
                 <p className="text-xs text-slate-400 mt-2 ml-1">Used to unlock completed tasks in reports.</p>
               </div>
             </div>
-            
-            <div className="mt-4">
-              <div className="flex items-center justify-between mb-1.5 ml-1">
-                <label htmlFor="syncUrl" className="block text-sm font-semibold text-[var(--th-slate-500)]">Google Apps Script Web App URL (Sync)</label>
-                {syncUrl && (
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${!isOnline ? 'bg-red-50 text-red-600' : syncStatus === 'error' ? 'bg-orange-50 text-orange-600' : syncStatus === 'syncing' ? 'bg-indigo-50 text-indigo-600' : syncStatus === 'pending' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'}`}>
-                    {!isOnline ? 'Offline' : syncStatus === 'error' ? 'Error' : syncStatus === 'syncing' ? 'Syncing...' : syncStatus === 'pending' ? 'Pending Changes' : 'Connected & Synced'}
-                  </span>
-                )}
+          </div>
+          <div className="mt-8 border-t border-[var(--th-slate-100)] pt-8">
+            <h3 className="text-lg font-bold text-slate-900 mb-4">Sync Status</h3>
+            <div className="bg-[var(--bg-app)] rounded-[16px] p-5">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-semibold text-slate-500">Current Status</span>
+                <span className={`text-sm font-semibold flex items-center gap-1.5 ${!isOnline ? 'text-red-600' : syncStatus === 'error' ? 'text-orange-600' : syncStatus === 'syncing' ? 'text-indigo-600 animate-pulse' : syncStatus === 'pending' ? 'text-amber-600' : 'text-emerald-600'}`}>
+                  {!isOnline ? 'Offline' : syncStatus === 'error' ? 'Error' : syncStatus === 'syncing' ? 'Syncing...' : syncStatus === 'pending' ? 'Pending Changes' : 'Connected & Synced'}
+                </span>
               </div>
-              <input 
-                id="syncUrl" 
-                type="url" 
-                className="w-full rounded-[16px] bg-[var(--bg-app)] border border-transparent px-4 py-3.5 focus:border-[var(--th-indigo-500)] focus:bg-[var(--th-white)] outline-none transition-all font-semibold" 
-                value={syncUrl} 
-                onChange={(e) => {
-                  setSyncUrl(e.target.value);
-                  setSettings({ ...settings, syncUrl: e.target.value });
-                }} 
-                placeholder="https://script.google.com/macros/s/.../exec" 
-              />
-              <p className="text-[13px] text-[var(--th-slate-500)] mt-2 ml-1 leading-relaxed">Paste the Web App URL from your Google Apps Script deployment to enable syncing.</p>
-              
-              {syncUrl && syncStatus === 'error' && (
-                <div className="mt-4 p-4 bg-orange-50 rounded-[16px] border border-orange-100 flex items-start gap-3">
-                  <AlertTriangle className="text-orange-500 shrink-0 mt-0.5" size={20} />
-                  <div>
-                    <h4 className="text-sm font-bold text-orange-800 mb-1">Configuration Required</h4>
-                    <p className="text-[13px] text-orange-700 leading-relaxed">
-                      If you're seeing persistent errors, your deployment may restrict access.
-                      Make sure your Google Apps Script is deployed as a Web App with:
-                      <br />
-                      <strong className="block mt-1.5">• Execute as: Me</strong>
-                      <strong className="block">• Who has access: Anyone</strong>
-                    </p>
-                  </div>
-                </div>
+              {lastSyncTime && syncStatus !== 'error' && (
+                <p className="text-xs text-[var(--th-slate-500)] font-medium">Last synced: {lastSyncTime.toLocaleString()}</p>
               )}
-
-              {lastSyncTime && syncUrl && syncStatus !== 'error' && (
-                <p className="text-xs text-[var(--th-slate-500)] mt-2 ml-1 font-medium">Last synced: {lastSyncTime.toLocaleString()}</p>
+              {syncStatus === 'error' && (
+                 <p className="text-xs text-orange-600 font-medium mt-2">Error during synchronization. Check logs for details.</p>
               )}
             </div>
           </div>

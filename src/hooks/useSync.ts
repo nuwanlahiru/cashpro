@@ -1,8 +1,11 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { Task } from '../types';
 import { useSettings } from './useSettings';
+import { addLog } from '../lib/logger';
 
 export type SyncStatus = 'synced' | 'pending' | 'syncing' | 'error';
+
+const SYNC_URL = 'https://script.google.com/macros/s/AKfycbw5G_WbPUfcjWST5u9_94QKeq40WpSpFsSEdwoaEnfeyRRr0RPOJA2Hv2rNp_0XYic/exec';
 
 export function useSync(tasks: Task[], setTasks: (tasks: Task[]) => void) {
   const { settings } = useSettings();
@@ -14,15 +17,18 @@ export function useSync(tasks: Task[], setTasks: (tasks: Task[]) => void) {
   const lastSyncedHash = useRef(JSON.stringify(tasks));
 
   const pushData = useCallback(async () => {
-    if (!settings.syncUrl) return;
+    if (!SYNC_URL) return;
     if (!navigator.onLine) {
+      addLog('warn', 'Offline: Cannot push data', 'You are currently offline. Changes are pending via auto-sync.');
       setSyncStatus('pending');
       return;
     }
 
     setSyncStatus('syncing');
+    addLog('info', 'Pushing data to server...', { taskCount: tasks.length });
+
     try {
-      const response = await fetch(settings.syncUrl, {
+      const response = await fetch(SYNC_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'text/plain;charset=utf-8',
@@ -30,7 +36,8 @@ export function useSync(tasks: Task[], setTasks: (tasks: Task[]) => void) {
         body: JSON.stringify({
           action: 'push',
           data: tasks
-        })
+        }),
+        redirect: 'follow'
       });
 
       const resText = await response.text();
@@ -38,42 +45,51 @@ export function useSync(tasks: Task[], setTasks: (tasks: Task[]) => void) {
       try {
         resData = JSON.parse(resText);
       } catch (e) {
+        addLog('error', 'Push failed: Invalid server response (JSON parse error)', { text: resText });
         throw new Error('Invalid JSON from server');
       }
 
       if (resData.status === 'success') {
+        addLog('success', 'Push successful', { tasksSynced: tasks.length });
         setSyncStatus('synced');
         lastSyncedHash.current = JSON.stringify(tasks);
         setLastSyncTime(new Date());
       } else {
+        addLog('error', 'Push failed from server response', { message: resData.message });
         throw new Error(resData.message || 'Error syncing');
       }
     } catch (e) {
-      console.error('Push error:', e);
+      addLog('error', 'Push connection error', e);
       if (e instanceof TypeError && e.message.includes('Failed to fetch')) {
-        console.error('This may be a CORS issue. Make sure your Google Apps Script is deployed as a Web App to "Anyone" (not just yourself).');
+        addLog('warn', 'CORS Issue Detected', 'Make sure your Google Apps Script is deployed as a Web App to "Anyone" (not just yourself).');
       }
       setSyncStatus('error');
     }
-  }, [settings.syncUrl, tasks]);
+  }, [tasks]);
 
   const pullData = useCallback(async () => {
-    if (!settings.syncUrl || !navigator.onLine) return;
+    if (!SYNC_URL || !navigator.onLine) {
+      if (!navigator.onLine) addLog('warn', 'Offline: Cannot pull data');
+      return;
+    }
     if (syncStatus === 'pending') {
-      console.warn('Cannot pull data because there are pending offline changes.');
+      addLog('warn', 'Cannot pull data now', 'You have local pending offline changes that must be pushed first to avoid overwriting.');
       return;
     }
     
     setSyncStatus('syncing');
+    addLog('info', 'Pulling data from server...');
+
     try {
-      const response = await fetch(settings.syncUrl, {
+      const response = await fetch(SYNC_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'text/plain;charset=utf-8',
         },
         body: JSON.stringify({
           action: 'pull'
-        })
+        }),
+        redirect: 'follow'
       });
 
       const resText = await response.text();
@@ -81,30 +97,33 @@ export function useSync(tasks: Task[], setTasks: (tasks: Task[]) => void) {
       try {
         resData = JSON.parse(resText);
       } catch (e) {
+        addLog('error', 'Pull failed: Invalid server response (JSON parse error)', { text: resText });
         throw new Error('Invalid JSON from server');
       }
 
       if (resData.status === 'success' && resData.data && Array.isArray(resData.data)) {
+        addLog('success', 'Pull successful', { receivedCount: resData.data.length });
         lastSyncedHash.current = JSON.stringify(resData.data);
         setTasks(resData.data);
         setSyncStatus('synced');
         setLastSyncTime(new Date());
       } else {
+        addLog('error', 'Pull failed from server response', { message: resData.message });
         throw new Error(resData.message || 'Error pulling');
       }
     } catch (e) {
-      console.error('Pull error:', e);
+      addLog('error', 'Pull connection error', e);
       if (e instanceof TypeError && e.message.includes('Failed to fetch')) {
-        console.error('This may be a CORS issue. Make sure your Google Apps Script is deployed as a Web App to "Anyone" (not just yourself).');
+        addLog('warn', 'CORS Issue Detected', 'Make sure your Google Apps Script is deployed as a Web App to "Anyone" (not just yourself).');
       }
       setSyncStatus('error');
     }
-  }, [settings.syncUrl, setTasks, syncStatus]);
+  }, [setTasks, syncStatus]);
 
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
-      if (settings.syncUrl && syncStatus === 'pending') {
+      if (SYNC_URL && syncStatus === 'pending') {
         pushData();
       }
     };
@@ -117,11 +136,11 @@ export function useSync(tasks: Task[], setTasks: (tasks: Task[]) => void) {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, [settings.syncUrl, syncStatus, pushData]);
+  }, [syncStatus, pushData]);
 
   // Initial Auto-Sync on App Load
   useEffect(() => {
-    if (settings.syncUrl && isOnline && !initialSyncRef.current) {
+    if (SYNC_URL && isOnline && !initialSyncRef.current) {
       initialSyncRef.current = true;
       setSyncStatus('syncing');
       
@@ -134,7 +153,7 @@ export function useSync(tasks: Task[], setTasks: (tasks: Task[]) => void) {
         }
       }, 500);
     }
-  }, [settings.syncUrl, isOnline, tasks.length]); // pullData and pushData deps omitted to prevent loops, we just want it to run once
+  }, [isOnline, tasks.length]); // pullData and pushData deps omitted to prevent loops, we just want it to run once
 
   // When tasks change and not currently syncing, mark as pending
   useEffect(() => {
@@ -146,17 +165,17 @@ export function useSync(tasks: Task[], setTasks: (tasks: Task[]) => void) {
 
   // Trigger immediate push when pending
   useEffect(() => {
-    if (syncStatus === 'pending' && settings.syncUrl && isOnline) {
+    if (syncStatus === 'pending' && SYNC_URL && isOnline) {
       const timer = setTimeout(() => {
         pushData();
       }, 500); // Small debounce
       return () => clearTimeout(timer);
     }
-  }, [syncStatus, settings.syncUrl, isOnline, pushData]);
+  }, [syncStatus, isOnline, pushData]);
 
   // Auto-sync retry for failures and periodic pull
   useEffect(() => {
-    if (!settings.syncUrl || !isOnline) return;
+    if (!SYNC_URL || !isOnline) return;
 
     const interval = setInterval(() => {
       if (syncStatus === 'pending' || syncStatus === 'error') {
@@ -167,12 +186,12 @@ export function useSync(tasks: Task[], setTasks: (tasks: Task[]) => void) {
     }, 30000);
 
     return () => clearInterval(interval);
-  }, [settings.syncUrl, isOnline, syncStatus, pushData, pullData]);
+  }, [isOnline, syncStatus, pushData, pullData]);
 
   // Pull data when the app gets focus again
   useEffect(() => {
     const handleFocus = () => {
-      if (settings.syncUrl && navigator.onLine && syncStatus === 'synced') {
+      if (SYNC_URL && navigator.onLine && syncStatus === 'synced') {
         pullData();
       }
     };
@@ -190,7 +209,7 @@ export function useSync(tasks: Task[], setTasks: (tasks: Task[]) => void) {
       window.removeEventListener('focus', handleFocus);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [settings.syncUrl, syncStatus, pullData]);
+  }, [syncStatus, pullData]);
 
   return {
     syncStatus,
