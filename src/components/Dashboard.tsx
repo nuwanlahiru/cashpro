@@ -3,6 +3,7 @@ import { Task } from '../types';
 import { formatCurrency } from '../lib/utils';
 import { format } from 'date-fns';
 import { PlusCircle, Wallet, CheckCircle2, Navigation, Trash2 } from 'lucide-react';
+import { useModalBack } from '../hooks/useModalBack';
 
 interface DashboardProps {
   tasks: Task[];
@@ -17,6 +18,8 @@ export default function Dashboard({ tasks, onStartNew, onViewTask, onDeleteTask,
   const completedTasks = tasks.filter(t => t.status === 'completed' && !t.deletedAt);
   const deletedCount = tasks.filter(t => t.deletedAt).length;
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
+
+  useModalBack(!!taskToDelete, () => setTaskToDelete(null), 'deleteConfirm');
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 sm:pb-0">

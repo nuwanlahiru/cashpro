@@ -5,6 +5,8 @@ import { CheckCircle, Plus, Receipt, Trash2, Wallet, X, FileText, Lock, Pencil }
 import { format } from 'date-fns';
 import { DEFAULT_CATEGORIES, getCategoryInfo } from '../lib/categories';
 
+import { useModalBack } from '../hooks/useModalBack';
+
 interface TaskDetailProps {
   task: Task;
   onUpdate: (task: Task) => void;
@@ -39,6 +41,11 @@ export default function TaskDetail({ task, onUpdate, onBack, onViewReport, onCom
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState(task.title);
   const titleInputRef = useRef<HTMLInputElement>(null);
+
+  useModalBack(isExpenseOpen, () => handleCloseExpenseModal(), 'expenseModal');
+  useModalBack(isTopUpOpen, () => setIsTopUpOpen(false), 'topUpModal');
+  useModalBack(isCompleteOpen, () => setIsCompleteOpen(false), 'completeModal');
+  useModalBack(isEditingTitle, () => setIsEditingTitle(false), 'editTitleModal');
 
   useEffect(() => {
     if (isEditingTitle && titleInputRef.current) {

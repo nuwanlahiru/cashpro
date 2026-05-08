@@ -9,6 +9,7 @@ import SettingsView from './components/SettingsView';
 import { Sun, Moon, Palette, Settings, Cloud, CloudOff, RefreshCw, DownloadCloud, UploadCloud, Infinity, AlertTriangle } from 'lucide-react';
 import { useSettings } from './hooks/useSettings';
 import { useSync } from './hooks/useSync';
+import { useModalBack } from './hooks/useModalBack';
 
 type Theme = 'light' | 'dark' | 'colorful';
 
@@ -47,9 +48,41 @@ export default function App() {
   const { settings } = useSettings();
   const { syncStatus, isOnline, lastSyncTime, pushData, pullData } = useSync(tasks, setTasks);
   const [showSyncMenu, setShowSyncMenu] = useState(false);
+  useModalBack(showSyncMenu, () => setShowSyncMenu(false), 'syncMenu');
   
-  const [view, setView] = useState<ViewState>('dashboard');
+  const [view, setViewState] = useState<ViewState>('dashboard');
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Initialize history state on load
+    if (!window.history.state || !window.history.state.view) {
+      window.history.replaceState({ view: 'dashboard', activeTaskId: null }, '', '');
+    } else {
+      setViewState(window.history.state.view);
+      setActiveTaskId(window.history.state.activeTaskId || null);
+    }
+
+    const handlePopState = (e: PopStateEvent) => {
+      if (e.state && e.state.view) {
+        setViewState(e.state.view);
+        setActiveTaskId(e.state.activeTaskId || null);
+      }
+    };
+    
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const setView = (newView: ViewState) => {
+    setViewState(newView);
+    window.history.pushState({ view: newView, activeTaskId }, '', '');
+  };
+
+  const navigateToTask = (id: string | null, newView: ViewState) => {
+    setActiveTaskId(id);
+    setViewState(newView);
+    window.history.pushState({ view: newView, activeTaskId: id }, '', '');
+  };
 
   useEffect(() => {
     localStorage.setItem('expense_tasks', JSON.stringify(tasks));
@@ -57,8 +90,7 @@ export default function App() {
 
   const handleCreateTask = (newTask: Task) => {
     setTasks([newTask, ...tasks]);
-    setActiveTaskId(newTask.id);
-    setView('task_detail');
+    navigateToTask(newTask.id, 'task_detail');
   };
 
   const handleUpdateTask = (updatedTask: Task) => {
@@ -68,8 +100,7 @@ export default function App() {
   const handleDeleteTask = (id: string) => {
     setTasks(tasks.map(t => t.id === id ? { ...t, deletedAt: new Date().toISOString() } : t));
     if(activeTaskId === id) {
-      setView('dashboard');
-      setActiveTaskId(null);
+      navigateToTask(null, 'dashboard');
     }
   };
 
@@ -92,11 +123,11 @@ export default function App() {
   return (
     <>
       {theme === 'colorful' && <div className="fixed inset-0 -z-10 colorful-bg"></div>}
-      <div className="min-h-screen bg-[var(--bg-app)] flex flex-col font-sans mb-safe">
+      <div className="h-full overflow-hidden bg-[var(--bg-app)] flex flex-col font-sans">
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-indigo-600 focus:text-white focus:rounded-md focus:font-semibold">
           Skip to main content
         </a>
-      <header className="sticky top-0 z-40 safe-pt bg-[var(--th-header-bg)] bg-blur-lg backdrop-blur-xl border-b border-[var(--th-slate-200)] px-4 sm:px-8 py-3.5 flex items-center justify-between">
+      <header className="shrink-0 z-40 safe-pt bg-[var(--th-header-bg)] bg-blur-lg backdrop-blur-xl border-b border-[var(--th-slate-200)] px-4 sm:px-8 py-3.5 flex items-center justify-between">
         <div className="flex items-center gap-2 lg:gap-3">
           <div className="w-10 h-10 bg-gradient-to-tr from-indigo-600 to-indigo-800 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20 shrink-0">
             <Infinity className="w-6 h-6 text-white" />
@@ -186,18 +217,18 @@ export default function App() {
           </div>
         </div>
       </header>
-      <main id="main-content" className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-8 py-6 safe-pb pb-12">
+      <main id="main-content" className="flex-1 w-full overflow-y-auto">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-6 safe-pb pb-12 min-h-full">
         {view === 'dashboard' && (
           <Dashboard 
             tasks={tasks} 
             onStartNew={() => setView('new_task')} 
             onViewTask={(id) => {
-              setActiveTaskId(id);
               const t = tasks.find(x => x.id === id);
               if (t?.status === 'completed' && !t?.isUnlocked) {
-                setView('report');
+                navigateToTask(id, 'report');
               } else {
-                setView('task_detail');
+                navigateToTask(id, 'task_detail');
               }
             }} 
             onDeleteTask={handleDeleteTask}
@@ -270,8 +301,9 @@ export default function App() {
             lastSyncTime={lastSyncTime}
           />
         )}
+        </div>
       </main>
-      <footer className="text-center text-xs font-medium text-[var(--th-slate-400)] pb-6 safe-pb">
+      <footer className="shrink-0 text-center text-xs font-medium text-[var(--th-slate-400)] pt-3 pb-6 safe-pb bg-[var(--bg-app)] border-t border-[var(--th-slate-200)]/30">
         © {new Date().getFullYear()} by <a href="https://scrollloop.com" target="_blank" rel="noopener noreferrer" className="text-[var(--th-indigo-500)] hover:underline">scrollloop.com</a>
       </footer>
     </div>

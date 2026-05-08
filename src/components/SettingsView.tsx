@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useSettings } from '../hooks/useSettings';
 import { ArrowLeft, Trash2, AlertTriangle } from 'lucide-react';
 import { Task } from '../types';
+import { useModalBack } from '../hooks/useModalBack';
 
 interface SettingsViewProps {
   onBack: () => void;
@@ -19,6 +20,8 @@ export default function SettingsView({ onBack, tasks, setTasks, isOnline, syncSt
   const [adminPwd, setAdminPwd] = useState(settings.adminPassword || '2745');
   const [syncUrl, setSyncUrl] = useState(settings.syncUrl || '');
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+
+  useModalBack(showClearConfirm, () => setShowClearConfirm(false), 'clearConfirm');
 
   const clearAllData = () => {
     if (confirm("Are you SURE you want to clear ALL data? This action cannot be undone.")) {

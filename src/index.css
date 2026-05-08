@@ -201,17 +201,34 @@
   body {
     @apply font-sans antialiased text-slate-900;
     -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    overscroll-behavior-y: none;
     background-color: var(--bg-app);
     color: var(--th-slate-900);
+    overflow: hidden;
+    height: 100dvh;
+    width: 100vw;
+  }
+  html, #root {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  input, textarea, select {
+    -webkit-user-select: auto;
+    user-select: auto;
   }
 }
 
 /* Safe area padding for mobile (notch, bottom bar) */
 .safe-pb {
-  padding-bottom: env(safe-area-inset-bottom, 20px);
+  padding-bottom: max(env(safe-area-inset-bottom), 20px);
 }
 .safe-pt {
-  padding-top: env(safe-area-inset-top, 20px);
+  padding-top: max(env(safe-area-inset-top), 12px);
 }
 
 @media print {

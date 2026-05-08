@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Task } from '../types';
 import { format, differenceInDays } from 'date-fns';
 import { Trash2, RotateCcw } from 'lucide-react';
+import { useModalBack } from '../hooks/useModalBack';
 
 interface TrashBinViewProps {
   tasks: Task[];
@@ -13,6 +14,8 @@ interface TrashBinViewProps {
 export default function TrashBinView({ tasks, onBack, onRestore, onPermanentDelete }: TrashBinViewProps) {
   const [taskToDelete, setTaskToDelete] = useState<string | null>(null);
   const deletedTasks = tasks.filter(t => t.deletedAt);
+
+  useModalBack(!!taskToDelete, () => setTaskToDelete(null), 'deleteForever');
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20 sm:pb-0">

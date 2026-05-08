@@ -6,6 +6,8 @@ import { ArrowLeft, Printer, AlertTriangle, FileText, ArrowRight, Lock, Unlock, 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { getCategoryInfo } from '../lib/categories';
 
+import { useModalBack } from '../hooks/useModalBack';
+
 interface ReportViewProps {
   task: Task;
   onBack: () => void;
@@ -21,6 +23,9 @@ export default function ReportView({ task, onBack, onUnlock, onEdit }: ReportVie
   const [pwdError, setPwdError] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
+
+  useModalBack(isUnlockOpen, () => setIsUnlockOpen(false), 'unlockModal');
+  useModalBack(isExportOpen, () => setIsExportOpen(false), 'exportModal');
 
   const totalSpent = task.expenses.reduce((sum, e) => sum + e.amount, 0);
   const totalAllowance = task.initialAllowance + (task.topUps || []).reduce((sum, t) => sum + t.amount, 0);
