@@ -17,16 +17,33 @@ interface SettingsViewProps {
 export default function SettingsView({ onBack, tasks, setTasks, isOnline, syncStatus, lastSyncTime }: SettingsViewProps) {
   const { settings, setSettings } = useSettings();
   const [currency, setCurrency] = useState(settings.currencyCode || 'LKR');
-  const [adminPwd, setAdminPwd] = useState(settings.adminPassword || '2745');
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [clearPwdInput, setClearPwdInput] = useState('');
+  const [clearPwdError, setClearPwdError] = useState(false);
 
-  useModalBack(showClearConfirm, () => setShowClearConfirm(false), 'clearConfirm');
+  const [isChangingPwd, setIsChangingPwd] = useState(!settings.adminPassword);
+  const [pwdCurrent, setPwdCurrent] = useState('');
+  const [pwdNew, setPwdNew] = useState('');
+  const [pwdError, setPwdError] = useState(false);
+
+  useModalBack(showClearConfirm, () => {
+    setShowClearConfirm(false);
+    setClearPwdInput('');
+    setClearPwdError(false);
+  }, 'clearConfirm');
 
   const clearAllData = () => {
+    if (settings.adminPassword && clearPwdInput !== settings.adminPassword) {
+      setClearPwdError(true);
+      setTimeout(() => setClearPwdError(false), 2000);
+      return;
+    }
+    
     if (confirm("Are you SURE you want to clear ALL data? This action cannot be undone.")) {
       setTasks([]);
       localStorage.removeItem('expense_tasks');
       setShowClearConfirm(false);
+      setClearPwdInput('');
     }
   };
 
@@ -68,19 +85,74 @@ export default function SettingsView({ onBack, tasks, setTasks, isOnline, syncSt
               </div>
 
               <div>
-                <label htmlFor="adminPwd" className="block text-sm font-semibold text-slate-500 mb-1.5 ml-1">Admin Password</label>
-                <input 
-                  id="adminPwd" 
-                  type="password" 
-                  required 
-                  className="w-full rounded-[16px] bg-[var(--bg-app)] border border-transparent px-4 py-3.5 focus:border-indigo-500 focus:bg-[var(--th-white)] outline-none transition-all font-semibold" 
-                  value={adminPwd} 
-                  onChange={(e) => {
-                    setAdminPwd(e.target.value);
-                    setSettings({ ...settings, adminPassword: e.target.value });
-                  }} 
-                />
-                <p className="text-xs text-slate-400 mt-2 ml-1">Used to unlock completed tasks in reports.</p>
+                <label className="block text-sm font-semibold text-slate-500 mb-1.5 ml-1">Admin Password</label>
+                {!isChangingPwd ? (
+                  <button
+                    onClick={() => setIsChangingPwd(true)}
+                    className="w-full text-left rounded-[16px] bg-[var(--bg-app)] border border-[var(--th-slate-200)] px-4 py-3.5 hover:bg-[var(--th-slate-50)] outline-none transition-all font-semibold flex items-center justify-between group"
+                  >
+                    <span className="text-[var(--th-slate-700)]">••••••••</span>
+                    <span className="text-[13px] text-indigo-600 font-bold group-hover:text-indigo-700">Change</span>
+                  </button>
+                ) : (
+                  <div className="bg-[var(--bg-app)] p-4 rounded-[16px] border border-[var(--th-slate-200)] space-y-3 animate-in fade-in zoom-in-95 duration-200">
+                    {settings.adminPassword && (
+                      <div>
+                        <input 
+                          type="password" 
+                          placeholder="Current password"
+                          className={`w-full rounded-[12px] bg-[var(--th-white)] border px-4 py-2.5 outline-none transition-all font-semibold ${
+                            pwdError ? 'border-red-500 text-red-600 focus:border-red-500' : 'border-[var(--th-slate-200)] focus:border-indigo-500'
+                          }`}
+                          value={pwdCurrent} 
+                          onChange={(e) => setPwdCurrent(e.target.value)} 
+                        />
+                        {pwdError && <p className="text-red-500 text-xs font-semibold mt-1.5 ml-1">Incorrect current password</p>}
+                      </div>
+                    )}
+                    <input 
+                      type="password" 
+                      placeholder="New password (leave empty to remove)"
+                      className="w-full rounded-[12px] bg-[var(--th-white)] border border-[var(--th-slate-200)] px-4 py-2.5 focus:border-indigo-500 outline-none transition-all font-semibold"
+                      value={pwdNew} 
+                      onChange={(e) => setPwdNew(e.target.value)} 
+                    />
+                    <div className="flex gap-2 pt-1">
+                      {settings.adminPassword && (
+                        <button 
+                          onClick={() => {
+                            setIsChangingPwd(false);
+                            setPwdCurrent('');
+                            setPwdNew('');
+                            setPwdError(false);
+                          }}
+                          className="flex-1 py-2 bg-[var(--th-slate-200)] text-[var(--th-slate-700)] font-semibold rounded-[10px] hover:bg-[var(--th-slate-300)] transition-colors text-sm"
+                        >
+                          Cancel
+                        </button>
+                      )}
+                      <button 
+                        onClick={() => {
+                          if (settings.adminPassword && pwdCurrent !== settings.adminPassword) {
+                            setPwdError(true);
+                            setTimeout(() => setPwdError(false), 2000);
+                            return;
+                          }
+                          setSettings({ ...settings, adminPassword: pwdNew });
+                          if (pwdNew) {
+                            setIsChangingPwd(false);
+                          }
+                          setPwdCurrent('');
+                          setPwdNew('');
+                        }}
+                        className="flex-1 py-2 bg-indigo-600 text-white font-semibold rounded-[10px] hover:bg-indigo-700 transition-colors text-sm"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </div>
+                )}
+                <p className="text-[13px] text-slate-500 mt-2 ml-1 leading-relaxed">Used to unlock completed tasks in reports.</p>
               </div>
             </div>
           </div>
@@ -115,8 +187,31 @@ export default function SettingsView({ onBack, tasks, setTasks, isOnline, syncSt
         {showClearConfirm ? (
           <div className="bg-[var(--th-white)] p-5 rounded-[16px] shadow-sm animate-in fade-in zoom-in-95 border border-[var(--th-slate-200)]">
             <p className="text-[var(--th-slate-900)] font-semibold mb-4 text-[15px]">Are you completely sure you want to delete ALL application data?</p>
+            
+            {settings.adminPassword && (
+              <div className="mb-4">
+                <input
+                  type="password"
+                  value={clearPwdInput}
+                  onChange={(e) => setClearPwdInput(e.target.value)}
+                  placeholder="Enter admin password"
+                  className={`w-full rounded-[12px] bg-[var(--bg-app)] border px-4 py-2.5 outline-none transition-all font-semibold ${
+                    clearPwdError ? 'border-red-500 text-red-600 focus:border-red-500' : 'border-[var(--th-slate-200)] focus:border-red-500'
+                  }`}
+                />
+                {clearPwdError && <p className="text-red-500 text-xs font-semibold mt-1.5 ml-1">Incorrect password</p>}
+              </div>
+            )}
+
             <div className="flex gap-3">
-              <button onClick={() => setShowClearConfirm(false)} className="flex-1 py-2.5 bg-[var(--th-slate-100)] text-[var(--th-slate-700)] font-semibold rounded-[12px] hover:bg-[var(--th-slate-200)] active:bg-[var(--th-slate-300)] transition-colors">
+              <button 
+                onClick={() => {
+                  setShowClearConfirm(false);
+                  setClearPwdInput('');
+                  setClearPwdError(false);
+                }} 
+                className="flex-1 py-2.5 bg-[var(--th-slate-100)] text-[var(--th-slate-700)] font-semibold rounded-[12px] hover:bg-[var(--th-slate-200)] active:bg-[var(--th-slate-300)] transition-colors"
+              >
                 Cancel
               </button>
               <button onClick={clearAllData} className="flex-1 py-2.5 bg-red-600 text-white font-semibold rounded-[12px] hover:bg-red-700 active:bg-red-800 transition-colors">
