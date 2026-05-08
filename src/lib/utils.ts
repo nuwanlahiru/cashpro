@@ -15,6 +15,13 @@ export function formatCurrency(amount: number) {
     }
   } catch(e) {}
 
+  if (currencyCode === 'LKR' || currencyCode === 'RS' || currencyCode === 'RS.') {
+    return `Rs. ${amount.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })}`;
+  }
+
   try {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',

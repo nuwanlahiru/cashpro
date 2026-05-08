@@ -22,7 +22,7 @@ export default function TrashBinView({ tasks, onBack, onRestore, onPermanentDele
       <div className="flex flex-col gap-2">
         <button 
           onClick={onBack}
-          className="text-[15px] font-semibold text-indigo-500 hover:text-indigo-600 active:text-indigo-400 transition-colors mb-2 w-fit flex items-center gap-1"
+          className="text-[15px] font-semibold text-indigo-500 hover:text-indigo-600 active:text-indigo-400 transition-colors mb-2 w-fit flex items-center gap-1 min-h-[48px] min-w-[48px] px-4 -ml-4 rounded-xl"
           aria-label="Go back to Dashboard"
         >
            ← Back

@@ -46,7 +46,7 @@ export default function TaskForm({ onSave, onCancel, initialData }: TaskFormProp
     <div className="max-w-xl mx-auto bg-[var(--th-white)] p-6 sm:p-10 rounded-[32px] sm:rounded-[40px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] animate-in slide-in-from-bottom-8 sm:zoom-in-95 duration-500 mb-10">
       <button 
         onClick={onCancel}
-        className="flex items-center text-[15px] font-semibold text-indigo-500 hover:text-indigo-600 active:text-indigo-400 mb-8 transition-colors"
+        className="flex items-center text-[15px] font-semibold text-indigo-500 hover:text-indigo-600 active:text-indigo-400 mb-8 transition-colors min-h-[48px] min-w-[48px] px-4 -ml-4 rounded-xl"
         aria-label="Cancel and go back"
       >
         <ArrowLeft size={20} className="mr-1.5" /> Back
@@ -82,8 +82,9 @@ export default function TaskForm({ onSave, onCancel, initialData }: TaskFormProp
           <label htmlFor="allowance" className="block text-[14px] font-semibold text-slate-500 mb-1.5 ml-1">
             Budget Allowance {(() => {
               try {
-                return `(${JSON.parse(localStorage.getItem('app_settings') || '{}').currencyCode || 'LKR'})`;
-              } catch(e) { return '(LKR)'; }
+                const code = JSON.parse(localStorage.getItem('app_settings') || '{}').currencyCode || 'LKR';
+                return `(${code === 'LKR' ? 'Rs.' : code})`;
+              } catch(e) { return '(Rs.)'; }
             })()}
           </label>
           <input

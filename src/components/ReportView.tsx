@@ -99,7 +99,7 @@ export default function ReportView({ task, onBack, onUnlock, onEdit }: ReportVie
       <div className="no-print flex flex-col gap-3 sm:flex-row sm:items-center justify-between sm:gap-4">
         <button 
           onClick={onBack}
-          className="text-[15px] font-semibold text-indigo-500 hover:text-indigo-600 active:text-indigo-400 transition-colors mb-2 sm:mb-0 w-fit flex items-center gap-1"
+          className="text-[15px] font-semibold text-indigo-500 hover:text-indigo-600 active:text-indigo-400 transition-colors mb-2 sm:mb-0 w-fit flex items-center gap-1 min-h-[48px] min-w-[48px] px-4 -ml-4 rounded-xl"
           aria-label="Go back to Dashboard"
         >
           ← Dashboard
@@ -522,7 +522,7 @@ export default function ReportView({ task, onBack, onUnlock, onEdit }: ReportVie
           <div className="bg-[var(--th-white)] rounded-[24px] sm:rounded-[32px] p-6 sm:p-8 w-full max-w-sm shadow-2xl relative animate-in slide-in-from-bottom-full sm:zoom-in-95 duration-200">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-[22px] font-bold text-slate-900 leading-none">Unlock Task</h3>
-              <button onClick={() => setIsUnlockOpen(false)} aria-label="Close unlock modal" className="text-slate-400 active:bg-slate-100 p-1.5 rounded-full"><X size={24}/></button>
+              <button onClick={() => setIsUnlockOpen(false)} aria-label="Close unlock modal" className="text-slate-400 active:bg-slate-100 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full -mr-2"><X size={24}/></button>
             </div>
             <p className="text-[15px] text-slate-500 mb-6 font-medium">Enter the admin password to unlock this task for editing.</p>
             <input

@@ -94,7 +94,7 @@ export default function Dashboard({ tasks, onStartNew, onViewTask, onDeleteTask,
                         e.stopPropagation(); 
                         setTaskToDelete(task.id); 
                       }}
-                      className="absolute top-4 right-4 text-slate-300 hover:text-red-500 active:bg-slate-100 rounded-full p-1.5 transition-colors"
+                      className="absolute top-2 right-2 text-slate-300 hover:text-red-500 active:bg-slate-100 rounded-full p-2 min-h-[44px] min-w-[44px] flex items-center justify-center transition-colors"
                       aria-label={`Delete task: ${task.title}`}
                     >
                       <Trash2 size={16} />
@@ -156,7 +156,7 @@ export default function Dashboard({ tasks, onStartNew, onViewTask, onDeleteTask,
                             e.stopPropagation(); 
                             setTaskToDelete(task.id); 
                           }}
-                          className="text-slate-300 hover:text-red-500 active:bg-slate-100 rounded-full p-2"
+                          className="text-slate-300 hover:text-red-500 active:bg-slate-100 rounded-full p-2 min-h-[44px] min-w-[44px] flex items-center justify-center -mr-2"
                           aria-label={`Delete completed task: ${task.title}`}
                         >
                           <Trash2 size={16} />

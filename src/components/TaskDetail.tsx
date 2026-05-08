@@ -172,7 +172,7 @@ export default function TaskDetail({ task, onUpdate, onBack, onViewReport, onCom
         <div>
           <button 
             onClick={onBack}
-            className="text-[13px] font-semibold text-indigo-500 hover:text-indigo-600 active:text-indigo-400 transition-colors mb-2 sm:mb-3 flex items-center gap-1"
+            className="text-[15px] font-semibold text-indigo-500 hover:text-indigo-600 active:text-indigo-400 transition-colors mb-2 sm:mb-3 flex items-center gap-1 min-h-[48px] min-w-[48px] px-4 -ml-4 rounded-xl"
             aria-label="Go back to Dashboard"
           >
             ← Back
@@ -206,7 +206,7 @@ export default function TaskDetail({ task, onUpdate, onBack, onViewReport, onCom
                 {canEdit && (
                   <button
                     onClick={() => setIsEditingTitle(true)}
-                    className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full opacity-0 group-hover:opacity-100 transition-all focus:opacity-100"
+                    className="p-2 min-h-[48px] min-w-[48px] flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-full sm:opacity-0 sm:group-hover:opacity-100 transition-all focus:opacity-100 -ml-2"
                     aria-label="Edit title"
                   >
                     <Pencil size={18} />
@@ -263,7 +263,7 @@ export default function TaskDetail({ task, onUpdate, onBack, onViewReport, onCom
             {canEdit && (
               <button 
                 onClick={() => setIsTopUpOpen(true)}
-                className="text-indigo-600 bg-indigo-50 hover:bg-indigo-100 active:bg-indigo-200 p-1 sm:p-1.5 rounded-full transition-colors flex-shrink-0 -mt-1 -mr-1"
+                className="text-indigo-600 bg-indigo-50 hover:bg-indigo-100 active:bg-indigo-200 p-2 sm:p-2.5 min-h-[48px] min-w-[48px] flex items-center justify-center rounded-full transition-colors flex-shrink-0 -mt-2 -mr-2"
                 title="Add more funds"
               >
                 <Plus size={16} className="sm:w-[18px] sm:h-[18px]" />
@@ -371,7 +371,7 @@ export default function TaskDetail({ task, onUpdate, onBack, onViewReport, onCom
                         <div className="flex items-center ml-0.5 sm:ml-0">
                           <button
                             onClick={() => handleEditExpense(expense)}
-                            className="text-slate-400 hover:text-indigo-500 active:bg-slate-100 p-1.5 sm:p-2 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 rounded-full transition-all"
+                            className="text-slate-400 hover:text-indigo-500 active:bg-slate-100 p-2 min-h-[48px] min-w-[48px] flex items-center justify-center sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 rounded-full transition-all"
                             title="Edit Expense"
                             aria-label={`Edit expense: ${expense.description}`}
                           >
@@ -379,7 +379,7 @@ export default function TaskDetail({ task, onUpdate, onBack, onViewReport, onCom
                           </button>
                           <button
                             onClick={() => handleDeleteExpense(expense.id)}
-                            className="text-slate-400 hover:text-red-500 active:bg-slate-100 p-1.5 sm:p-2 sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 rounded-full transition-all"
+                            className="text-slate-400 hover:text-red-500 active:bg-slate-100 p-2 min-h-[48px] min-w-[48px] flex items-center justify-center sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100 rounded-full transition-all"
                             title="Delete Expense"
                             aria-label={`Delete expense: ${expense.description}`}
                           >
@@ -412,8 +412,9 @@ export default function TaskDetail({ task, onUpdate, onBack, onViewReport, onCom
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-semibold">
                     {(() => {
                       try {
-                        return JSON.parse(localStorage.getItem('app_settings') || '{}').currencyCode || 'LKR';
-                      } catch(e) { return 'LKR'; }
+                        const code = JSON.parse(localStorage.getItem('app_settings') || '{}').currencyCode || 'LKR';
+                        return code === 'LKR' ? 'Rs.' : code;
+                      } catch(e) { return 'Rs.'; }
                     })()}
                   </span>
                   <input id="topUpAmount" autoFocus type="number" required min="0" step="0.01" className="w-full rounded-[16px] bg-slate-50 border border-slate-200 pl-16 pr-4 py-3.5 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none transition-all text-lg font-bold text-slate-900" value={topUpAmount} onChange={(e) => setTopUpAmount(e.target.value)} placeholder="0.00" />
@@ -456,8 +457,9 @@ export default function TaskDetail({ task, onUpdate, onBack, onViewReport, onCom
                   <span className="text-[12px] font-semibold text-slate-400 mb-0.5">
                     Amount {(() => {
                       try {
-                        return `(${JSON.parse(localStorage.getItem('app_settings') || '{}').currencyCode || 'LKR'})`;
-                      } catch(e) { return '(LKR)'; }
+                        const code = JSON.parse(localStorage.getItem('app_settings') || '{}').currencyCode || 'LKR';
+                        return `(${code === 'LKR' ? 'Rs.' : code})`;
+                      } catch(e) { return '(Rs.)'; }
                     })()}
                   </span>
                   <input 

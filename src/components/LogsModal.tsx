@@ -28,14 +28,14 @@ export default function LogsModal({ onClose }: { onClose: () => void }) {
               <>
                 <button
                   onClick={handleCopyLogs}
-                  className="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
+                  className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
                   title="Copy logs"
                 >
                   <Copy size={18} />
                 </button>
                 <button
                   onClick={clearLogs}
-                  className="p-1.5 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                  className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
                   title="Clear logs"
                 >
                   <Trash2 size={18} />
@@ -44,7 +44,7 @@ export default function LogsModal({ onClose }: { onClose: () => void }) {
             )}
             <button
               onClick={onClose}
-              className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors ml-1"
+              className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-full transition-colors ml-1 -mr-2"
             >
               <X size={18} />
             </button>

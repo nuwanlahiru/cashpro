@@ -144,7 +144,7 @@ export default function App() {
           <div className="relative flex items-center">
             <button 
               onClick={() => setShowSyncMenu(!showSyncMenu)}
-              className={`flex items-center justify-center p-2 rounded-full transition-colors ${!isOnline ? 'text-red-500 bg-red-50 hover:bg-red-100' : syncStatus === 'error' ? 'text-orange-500 bg-orange-50 hover:bg-orange-100' : syncStatus === 'pending' ? 'text-amber-500 bg-amber-50 hover:bg-amber-100' : syncStatus === 'synced' ? 'text-emerald-500 bg-emerald-50 hover:bg-emerald-100' : 'text-indigo-500 bg-indigo-50 hover:bg-indigo-100'}`}
+              className={`flex items-center justify-center p-2 min-h-[44px] min-w-[44px] rounded-full transition-colors ${!isOnline ? 'text-red-500 bg-red-50 hover:bg-red-100' : syncStatus === 'error' ? 'text-orange-500 bg-orange-50 hover:bg-orange-100' : syncStatus === 'pending' ? 'text-amber-500 bg-amber-50 hover:bg-amber-100' : syncStatus === 'synced' ? 'text-emerald-500 bg-emerald-50 hover:bg-emerald-100' : 'text-indigo-500 bg-indigo-50 hover:bg-indigo-100'}`}
               title="Sync Status"
               aria-label="Sync Status"
             >
@@ -191,7 +191,7 @@ export default function App() {
           <div className="flex bg-[var(--bg-app)] rounded-full p-1 border border-[var(--th-slate-200)]/50">
             <button 
               onClick={() => setTheme(t => t === 'light' ? 'dark' : t === 'dark' ? 'colorful' : 'light')}
-              className="p-1.5 rounded-full transition-colors text-[var(--th-slate-600)] hover:bg-[var(--th-white)] hover:shadow-sm"
+              className="p-1.5 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-full transition-colors text-[var(--th-slate-600)] hover:bg-[var(--th-white)] hover:shadow-sm"
               title="Toggle Theme"
               aria-label="Toggle Theme"
             >
@@ -204,7 +204,7 @@ export default function App() {
           <div className="flex bg-[var(--bg-app)] rounded-full p-1 border border-[var(--th-slate-200)]/50">
             <button 
               onClick={() => setShowLogsModal(true)}
-              className={`p-1.5 rounded-full transition-colors ${showLogsModal ? 'bg-[var(--th-white)] text-[var(--th-indigo-600)] shadow-sm' : 'text-[var(--th-slate-400)] hover:text-[var(--th-slate-600)]'}`}
+              className={`p-1.5 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-full transition-colors ${showLogsModal ? 'bg-[var(--th-white)] text-[var(--th-indigo-600)] shadow-sm' : 'text-[var(--th-slate-400)] hover:text-[var(--th-slate-600)]'}`}
               title="Logs"
               aria-label="View Logs"
             >
@@ -212,7 +212,7 @@ export default function App() {
             </button>
             <button 
               onClick={() => setView('settings')}
-              className={`p-1.5 rounded-full transition-colors relative ${view === 'settings' ? 'bg-[var(--th-white)] text-[var(--th-indigo-600)] shadow-sm' : 'text-[var(--th-slate-400)] hover:text-[var(--th-slate-600)]'}`}
+              className={`p-1.5 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-full transition-colors relative ${view === 'settings' ? 'bg-[var(--th-white)] text-[var(--th-indigo-600)] shadow-sm' : 'text-[var(--th-slate-400)] hover:text-[var(--th-slate-600)]'}`}
               title="Settings"
               aria-label="Open Settings"
             >
