@@ -29,4 +29,4 @@ export interface Task {
   deletedAt?: string; // ISO string
 }
 
-export type ViewState = 'dashboard' | 'new_task' | 'task_detail' | 'report' | 'bin' | 'settings';
+export type ViewState = 'dashboard' | 'new_task' | 'edit_task' | 'task_detail' | 'report' | 'bin' | 'settings';

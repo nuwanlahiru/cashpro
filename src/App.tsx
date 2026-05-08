@@ -6,7 +6,7 @@ import TaskDetail from './components/TaskDetail';
 import ReportView from './components/ReportView';
 import TrashBinView from './components/TrashBinView';
 import SettingsView from './components/SettingsView';
-import { Sun, Moon, Palette, Settings, Cloud, CloudOff, RefreshCw, DownloadCloud } from 'lucide-react';
+import { Sun, Moon, Palette, Settings, Cloud, CloudOff, RefreshCw, DownloadCloud, UploadCloud, Infinity, AlertTriangle } from 'lucide-react';
 import { useSettings } from './hooks/useSettings';
 import { useSync } from './hooks/useSync';
 
@@ -44,7 +44,8 @@ export default function App() {
     }
   });
 
-  const { syncStatus, isOnline, pushData, pullData } = useSync(tasks, setTasks);
+  const { settings } = useSettings();
+  const { syncStatus, isOnline, lastSyncTime, pushData, pullData } = useSync(tasks, setTasks);
   const [showSyncMenu, setShowSyncMenu] = useState(false);
   
   const [view, setView] = useState<ViewState>('dashboard');
@@ -96,13 +97,11 @@ export default function App() {
           Skip to main content
         </a>
       <header className="sticky top-0 z-40 safe-pt bg-[var(--th-header-bg)] bg-blur-lg backdrop-blur-xl border-b border-[var(--th-slate-200)] px-4 sm:px-8 py-3.5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-[var(--th-indigo-600)] rounded-xl flex items-center justify-center shadow-sm">
-            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+        <div className="flex items-center gap-2 lg:gap-3">
+          <div className="w-10 h-10 bg-gradient-to-tr from-indigo-600 to-indigo-800 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20 shrink-0">
+            <Infinity className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-lg font-bold tracking-tight text-[var(--th-slate-900)]">Petty Cash 💸</h1>
+          <h1 className="text-lg font-bold tracking-tight text-[var(--th-slate-900)] whitespace-nowrap">Petty Cash</h1>
         </div>
         
         <div className="flex items-center gap-2">
@@ -114,28 +113,46 @@ export default function App() {
               title="Sync Status"
               aria-label="Sync Status"
             >
-              {!isOnline ? <CloudOff size={18} /> : syncStatus === 'syncing' ? <RefreshCw size={18} className="animate-spin" /> : <Cloud size={18} />}
+              {!isOnline ? <CloudOff size={18} /> : 
+                syncStatus === 'syncing' ? <RefreshCw size={18} className="animate-spin" /> : 
+                syncStatus === 'error' ? <AlertTriangle size={18} /> :
+                syncStatus === 'pending' ? <UploadCloud size={18} /> :
+                <Cloud size={18} />}
             </button>
 
             {showSyncMenu && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowSyncMenu(false)}></div>
-                <div className="absolute top-12 right-0 mt-2 w-48 bg-[var(--th-white)] rounded-[16px] shadow-sm border border-[var(--th-slate-200)] z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                <div className="absolute top-12 right-0 mt-2 w-48 bg-[var(--th-white)] backdrop-blur-xl rounded-[16px] shadow-sm border border-[var(--th-slate-200)] z-50 overflow-hidden animate-in fade-in slide-in-from-top-2">
                   <div className="px-4 py-3 border-b border-[var(--th-slate-200)]/50">
-                    <p className="text-sm font-semibold text-slate-800">Sync Status</p>
-                    <p className="text-xs text-slate-500 mt-1">{!isOnline ? 'Offline' : syncStatus.charAt(0).toUpperCase() + syncStatus.slice(1)}</p>
+                    <p className="text-sm font-semibold text-[var(--th-slate-800)]">Sync Status</p>
+                    <p className="text-xs text-[var(--th-slate-500)] mt-1">{!isOnline ? 'Offline' : syncStatus.charAt(0).toUpperCase() + syncStatus.slice(1)}</p>
                   </div>
                   <button 
-                    onClick={() => { pushData(); setShowSyncMenu(false); }}
+                    onClick={() => { 
+                      if (!settings.syncUrl) {
+                        alert("Please configure the Sync URL in Settings first.");
+                      } else {
+                        pushData(); 
+                      }
+                      setShowSyncMenu(false); 
+                    }}
                     disabled={!isOnline || syncStatus === 'syncing'}
-                    className="w-full flex items-center gap-2 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="w-full flex items-center gap-2 px-4 py-3 text-sm font-medium text-[var(--th-slate-700)] hover:bg-[var(--th-slate-50)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     <Cloud size={16} className="text-emerald-500" /> Push Data
                   </button>
                   <button 
-                    onClick={() => { pullData(); setShowSyncMenu(false); }}
-                    disabled={!isOnline || syncStatus === 'syncing'}
-                    className="w-full flex items-center gap-2 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border-t border-[var(--th-slate-200)]/50"
+                    onClick={() => { 
+                      if (!settings.syncUrl) {
+                        alert("Please configure the Sync URL in Settings first.");
+                      } else {
+                        pullData(); 
+                      }
+                      setShowSyncMenu(false); 
+                    }}
+                    disabled={!isOnline || syncStatus === 'syncing' || syncStatus === 'pending'}
+                    className="w-full flex items-center gap-2 px-4 py-3 text-sm font-medium text-[var(--th-slate-700)] hover:bg-[var(--th-slate-50)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors border-t border-[var(--th-slate-200)]/50"
                   >
                     <DownloadCloud size={16} className="text-indigo-500" /> Pull Data
                   </button>
@@ -146,31 +163,14 @@ export default function App() {
 
           <div className="flex bg-[var(--bg-app)] rounded-full p-1 border border-[var(--th-slate-200)]/50">
             <button 
-              onClick={() => setTheme('light')}
-              className={`p-1.5 rounded-full transition-colors ${theme === 'light' ? 'bg-[var(--th-white)] text-[var(--th-indigo-600)] shadow-sm' : 'text-[var(--th-slate-400)] hover:text-[var(--th-slate-600)]'}`}
-              title="Light Mode"
-              aria-label="Switch to Light Mode"
-              aria-pressed={theme === 'light'}
+              onClick={() => setTheme(t => t === 'light' ? 'dark' : t === 'dark' ? 'colorful' : 'light')}
+              className="p-1.5 rounded-full transition-colors text-[var(--th-slate-600)] hover:bg-[var(--th-white)] hover:shadow-sm"
+              title="Toggle Theme"
+              aria-label="Toggle Theme"
             >
-              <Sun size={18} />
-            </button>
-            <button 
-              onClick={() => setTheme('dark')}
-              className={`p-1.5 rounded-full transition-colors ${theme === 'dark' ? 'bg-[var(--th-white)] text-[var(--th-indigo-600)] shadow-sm' : 'text-[var(--th-slate-400)] hover:text-[var(--th-slate-600)]'}`}
-              title="Dark Mode"
-              aria-label="Switch to Dark Mode"
-              aria-pressed={theme === 'dark'}
-            >
-              <Moon size={18} />
-            </button>
-            <button 
-              onClick={() => setTheme('colorful')}
-              className={`p-1.5 rounded-full transition-colors ${theme === 'colorful' ? 'bg-[var(--th-white)] text-[var(--th-indigo-600)] shadow-sm' : 'text-[var(--th-slate-400)] hover:text-[var(--th-slate-600)]'}`}
-              title="Colorful Mode"
-              aria-label="Switch to Colorful Mode"
-              aria-pressed={theme === 'colorful'}
-            >
-              <Palette size={18} />
+              {theme === 'light' && <Sun size={18} />}
+              {theme === 'dark' && <Moon size={18} />}
+              {theme === 'colorful' && <Palette size={18} />}
             </button>
           </div>
 
@@ -211,6 +211,17 @@ export default function App() {
             onCancel={() => setView('dashboard')} 
           />
         )}
+
+        {view === 'edit_task' && activeTask && (
+          <TaskForm 
+            initialData={activeTask}
+            onSave={(updated) => {
+              handleUpdateTask(updated);
+              setView('task_detail');
+            }} 
+            onCancel={() => setView('task_detail')} 
+          />
+        )}
         
         {view === 'task_detail' && activeTask && (
           <TaskDetail 
@@ -218,6 +229,7 @@ export default function App() {
             onUpdate={handleUpdateTask} 
             onBack={() => setView('dashboard')}
             onViewReport={() => setView('report')}
+            onEditTask={() => setView('edit_task')}
             onComplete={() => {
               if (activeTask.isUnlocked) {
                 handleUpdateTask({ ...activeTask, isUnlocked: false });
@@ -253,6 +265,9 @@ export default function App() {
             onBack={() => setView('dashboard')}
             tasks={tasks}
             setTasks={setTasks}
+            isOnline={isOnline}
+            syncStatus={syncStatus}
+            lastSyncTime={lastSyncTime}
           />
         )}
       </main>

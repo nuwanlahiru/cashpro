@@ -1,30 +1,45 @@
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { Task } from '../types';
-import { ArrowLeft, Briefcase } from 'lucide-react';
+import { ArrowLeft, Briefcase, Pencil } from 'lucide-react';
 
 interface TaskFormProps {
   onSave: (task: Task) => void;
   onCancel: () => void;
+  initialData?: Task;
 }
 
-export default function TaskForm({ onSave, onCancel }: TaskFormProps) {
-  const [title, setTitle] = useState('');
-  const [allowance, setAllowance] = useState('');
+export default function TaskForm({ onSave, onCancel, initialData }: TaskFormProps) {
+  const [title, setTitle] = useState(initialData?.title || '');
+  const [allowance, setAllowance] = useState(initialData?.initialAllowance?.toString() || '');
+
+  useEffect(() => {
+    if (initialData) {
+      setTitle(initialData.title);
+      setAllowance(initialData.initialAllowance.toString());
+    }
+  }, [initialData]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !allowance.trim()) return;
 
-    const newTask: Task = {
-      id: crypto.randomUUID(),
-      title: title.trim(),
-      initialAllowance: parseFloat(allowance),
-      startDate: new Date().toISOString(),
-      status: 'active',
-      expenses: []
-    };
-
-    onSave(newTask);
+    if (initialData) {
+      onSave({
+        ...initialData,
+        title: title.trim(),
+        initialAllowance: parseFloat(allowance),
+      });
+    } else {
+      const newTask: Task = {
+        id: crypto.randomUUID(),
+        title: title.trim(),
+        initialAllowance: parseFloat(allowance),
+        startDate: new Date().toISOString(),
+        status: 'active',
+        expenses: []
+      };
+      onSave(newTask);
+    }
   };
 
   return (
@@ -39,11 +54,11 @@ export default function TaskForm({ onSave, onCancel }: TaskFormProps) {
 
       <div className="flex items-center gap-4 mb-8">
         <div className="h-14 w-14 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-[0_4px_12px_rgba(79,70,229,0.3)]">
-          <Briefcase size={28} />
+          {initialData ? <Pencil size={28} /> : <Briefcase size={28} />}
         </div>
         <div>
-          <span className="text-[13px] font-semibold text-indigo-600 block mb-1">New Entry</span>
-          <h2 className="text-[28px] sm:text-[32px] font-bold text-slate-900 leading-none tracking-tight">Start New Task</h2>
+          <span className="text-[13px] font-semibold text-indigo-600 block mb-1">{initialData ? 'Edit Entry' : 'New Entry'}</span>
+          <h2 className="text-[28px] sm:text-[32px] font-bold text-slate-900 leading-none tracking-tight">{initialData ? 'Edit Task' : 'Start New Task'}</h2>
         </div>
       </div>
 
@@ -92,7 +107,7 @@ export default function TaskForm({ onSave, onCancel }: TaskFormProps) {
             type="submit"
             className="w-full sm:flex-[2] py-4 bg-indigo-600 text-white font-semibold rounded-[16px] hover:bg-indigo-700 active:bg-indigo-800 transition-colors shadow-[0_4px_12px_rgba(79,70,229,0.3)] text-[17px] order-1 sm:order-2"
           >
-            Start Task
+            {initialData ? 'Save Changes' : 'Start Task'}
           </button>
           <button
             type="button"

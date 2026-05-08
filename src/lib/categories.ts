@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Coffee, Fuel, Bus, Home, Wrench, FileQuestion, ShoppingBag, Plus, Sparkles, type LucideIcon } from 'lucide-react';
+import { Coffee, Fuel, Bus, Home, Wrench, Tag, ShoppingBag, Plus, Sparkles, type LucideIcon } from 'lucide-react';
 
 export interface CategoryInfo {
   id: string;
@@ -15,7 +15,7 @@ export const DEFAULT_CATEGORIES: CategoryInfo[] = [
   { id: 'Transport', label: 'Travel & Tolls', icon: Bus, bgColor: 'bg-indigo-50', textColor: 'text-indigo-600' },
   { id: 'Accommodation', label: 'Hotel & Stay', icon: Home, bgColor: 'bg-emerald-50', textColor: 'text-emerald-600' },
   { id: 'Materials', label: 'Materials', icon: Wrench, bgColor: 'bg-amber-50', textColor: 'text-amber-600' },
-  { id: 'Other', label: 'Other/Misc', icon: FileQuestion, bgColor: 'bg-slate-50', textColor: 'text-slate-600' },
+  { id: 'Other', label: 'Other', icon: Tag, bgColor: 'bg-slate-50', textColor: 'text-slate-600' },
 ];
 
 export const GENERAL_CUSTOM_CATEGORY: CategoryInfo = {
